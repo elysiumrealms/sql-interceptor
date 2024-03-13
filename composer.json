@@ -1,0 +1,38 @@
+{
+    "name": "elysiumrealms/sql-interceptor",
+    "keywords": ["sql", "interceptor"],
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Elysiumrealms\\SQLInterceptor\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "deflinhec",
+            "email": "deflinhec@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^7.3|^8.0",
+        "laravel/framework": "^8.12"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Elysiumrealms\\SQLInterceptor\\SQLInterceptorServiceProvider"
+            ],
+            "aliases": {
+                "SQLInterceptor": "Elysiumrealms\\SQLInterceptor\\SQLInterceptor"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "post-autoload-dump": "@prepare"
+    }
+}
