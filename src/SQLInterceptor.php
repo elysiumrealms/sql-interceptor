@@ -2,13 +2,20 @@
 
 namespace Elysiumrealms\SQLInterceptor;
 
+use Closure;
 use Illuminate\Support\Facades\DB;
 
 class SQLInterceptor
 {
     static protected $loggedQueries = [];
 
-    static function intercept(\Closure $callback): SQLInterceptor
+    /**
+     * Intercept the queries
+     *
+     * @param Closure $callback
+     * @return SQLInterceptor
+     */
+    static function intercept(Closure $callback): SQLInterceptor
     {
         // Backup the original connection name
         $originalConnection = DB::getDefaultConnection();
@@ -28,7 +35,12 @@ class SQLInterceptor
         return new static;
     }
 
-    public function queries()
+    /**
+     * Get the logged queries
+     *
+     * @return array
+     */
+    public function queries(): array
     {
         return static::$loggedQueries;
     }

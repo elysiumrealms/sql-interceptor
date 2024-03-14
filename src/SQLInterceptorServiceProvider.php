@@ -5,6 +5,10 @@ namespace Elysiumrealms\SQLInterceptor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Elysiumrealms\SQLInterceptor\Connections\MySQLLoggingConnection;
+use Elysiumrealms\SQLInterceptor\Connections\PostgresLoggingConnection;
+use Elysiumrealms\SQLInterceptor\Connections\SQLiteLoggingConnection;
+use Elysiumrealms\SQLInterceptor\Connections\SQLServerLoggingConnection;
+use InvalidArgumentException;
 
 class SQLInterceptorServiceProvider extends ServiceProvider
 {
@@ -12,8 +16,21 @@ class SQLInterceptorServiceProvider extends ServiceProvider
     {
         DB::extend('logging', function ($config, $name) {
             $config['name'] = $name;
-            // Adjust this based on your actual database connection type
-            return new MySQLLoggingConnection($config);
+
+            switch ($config['driver']) {
+                case 'mysql':
+                    return new MySQLLoggingConnection($config);
+                case 'pgsql':
+                    return new PostgresLoggingConnection($config);
+                case 'sqlite':
+                    return new SQLiteLoggingConnection($config);
+                case 'sqlsrv':
+                    return new SQLServerLoggingConnection($config);
+            }
+
+            throw new InvalidArgumentException(
+                "Unsupported driver [{$config['driver']}]"
+            );
         });
 
         $this->offerPublishing();
