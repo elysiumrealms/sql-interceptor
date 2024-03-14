@@ -31,9 +31,33 @@ class InstallCommand extends Command
         $this->comment('Publishing SQLInterceptor Service Provider...');
         $this->callSilent('vendor:publish', ['--tag' => 'sql-interceptor-provider']);
 
+        $this->registerDatabaseConnection();
         $this->registerSQLInterceptorServiceProvider();
 
         $this->info('SQLInterceptor scaffolding installed successfully.');
+    }
+
+    /**
+     * Register the database connection in the application configuration file.
+     *
+     * @return void
+     */
+    protected function registerDatabaseConnection()
+    {
+        $databaseConfig = file_get_contents(config_path('database.php'));
+
+        if (Str::contains($databaseConfig, "'logging' => [" . PHP_EOL)) {
+            return;
+        }
+
+        file_put_contents(config_path('database.php'), str_replace(
+            "    'connections' => [" . PHP_EOL,
+            "    'connections' => [" . PHP_EOL  . PHP_EOL .
+                "        'logging' => [" . PHP_EOL .
+                "            'driver' => 'mysql'" . PHP_EOL .
+                "        ]," . PHP_EOL,
+            $databaseConfig
+        ));
     }
 
     /**
@@ -55,15 +79,6 @@ class InstallCommand extends Command
             "{$namespace}\\Providers\EventServiceProvider::class," . PHP_EOL,
             "{$namespace}\\Providers\EventServiceProvider::class," . PHP_EOL . "        {$namespace}\Providers\SQLInterceptorServiceProvider::class," . PHP_EOL,
             $appConfig
-        ));
-
-        file_put_contents(config_path('database.php'), str_replace(
-            "    'connections' => [" . PHP_EOL,
-            "    'connections' => [" . PHP_EOL  . PHP_EOL .
-                "        'logging' => [" . PHP_EOL .
-                "            'driver' => 'mysql'" . PHP_EOL .
-                "        ]," . PHP_EOL,
-            file_get_contents(config_path('database.php'))
         ));
     }
 }
