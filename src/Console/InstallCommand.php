@@ -61,7 +61,7 @@ class InstallCommand extends Command
             "    'connections' => [" . PHP_EOL,
             "    'connections' => [" . PHP_EOL  . PHP_EOL .
                 "        'logging' => [" . PHP_EOL .
-                "            'driver' => 'logging'" . PHP_EOL .
+                "            'driver' => 'mysql'" . PHP_EOL .
                 "        ]," . PHP_EOL,
             file_get_contents(config_path('database.php'))
         ));
