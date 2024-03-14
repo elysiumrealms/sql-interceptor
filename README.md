@@ -2,7 +2,7 @@
 
 ## Description
 
-SQLInterceptor is a tool for intercepting and modifying SQL queries. It can be used to monitor and adjust SQL queries being executed within an application.
+SQLInterceptor is a tool for intercepting SQL queries. It can be used to perform a dry-run and capture SQL queries being executed within a closure.
 
 ## Features
 

@@ -1,5 +1,7 @@
 {
     "name": "elysiumrealms/sql-interceptor",
+    "description": "SQL Interceptor for Laravel",
+    "license": "MIT",
     "keywords": ["sql", "interceptor"],
     "type": "library",
     "autoload": {
