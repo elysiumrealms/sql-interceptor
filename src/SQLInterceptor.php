@@ -7,7 +7,18 @@ use Illuminate\Support\Facades\DB;
 
 class SQLInterceptor
 {
-    static protected $loggedQueries = [];
+    /**
+     * @var array
+     */
+    protected $loggedQueries = [];
+
+    /**
+     * SQLInterceptor constructor.
+     */
+    public function __construct($queries)
+    {
+        $this->loggedQueries = $queries;
+    }
 
     /**
      * Intercept the queries
@@ -27,12 +38,12 @@ class SQLInterceptor
         $callback();
 
         // Get the logged queries from the custom connection
-        static::$loggedQueries = DB::connection()->queries;
+        $loggedQueries = DB::connection()->queries;
 
         // Restore the original database connection
         DB::setDefaultConnection($originalConnection);
 
-        return new static;
+        return new static($loggedQueries);
     }
 
     /**
@@ -42,6 +53,6 @@ class SQLInterceptor
      */
     public function queries(): array
     {
-        return static::$loggedQueries;
+        return $this->loggedQueries;
     }
 }

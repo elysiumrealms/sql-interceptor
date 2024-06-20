@@ -2,12 +2,9 @@
 
 namespace Elysiumrealms\SQLInterceptor;
 
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
-use Elysiumrealms\SQLInterceptor\Connections\MySQLLoggingConnection;
-use Elysiumrealms\SQLInterceptor\Connections\PostgresLoggingConnection;
-use Elysiumrealms\SQLInterceptor\Connections\SQLiteLoggingConnection;
-use Elysiumrealms\SQLInterceptor\Connections\SQLServerLoggingConnection;
 use InvalidArgumentException;
 
 class SQLInterceptorServiceProvider extends ServiceProvider
@@ -19,13 +16,13 @@ class SQLInterceptorServiceProvider extends ServiceProvider
 
             switch ($config['driver']) {
                 case 'mysql':
-                    return new MySQLLoggingConnection($config);
+                    return new Connections\MySQLLoggingConnection($config);
                 case 'pgsql':
-                    return new PostgresLoggingConnection($config);
+                    return new Connections\PostgresLoggingConnection($config);
                 case 'sqlite':
-                    return new SQLiteLoggingConnection($config);
+                    return new Connections\SQLiteLoggingConnection($config);
                 case 'sqlsrv':
-                    return new SQLServerLoggingConnection($config);
+                    return new Connections\SQLServerLoggingConnection($config);
             }
 
             throw new InvalidArgumentException(
@@ -33,23 +30,37 @@ class SQLInterceptorServiceProvider extends ServiceProvider
             );
         });
 
-        $this->offerPublishing();
         $this->registerCommands();
+        $this->registerServiceProvider();
     }
 
     /**
-     * Setup the resource publishing groups for SQLInterceptor.
+     * Register the Service provider in the application configuration file.
      *
      * @return void
      */
-    protected function offerPublishing()
+    protected function registerServiceProvider()
     {
-        if ($this->app->runningInConsole()) {
-            $this->publishes([
-                __DIR__ . '/../stubs/SQLInterceptorServiceProvider.stub' =>
-                app_path('Providers/SQLInterceptorServiceProvider.php'),
-            ], 'sql-interceptor-provider');
-        }
+        if (!$this->app->runningInConsole())
+            return;
+
+        $appConfig = file_get_contents(config_path('app.php'));
+
+        $class = static::class . '::class';
+
+        if (Str::contains($appConfig, $class))
+            return;
+
+        file_put_contents(config_path('app.php'), str_replace(
+            "        /*" . PHP_EOL .
+                "         * Package Service Providers..." . PHP_EOL .
+                "         */",
+            "        /*" . PHP_EOL .
+                "         * Package Service Providers..." . PHP_EOL .
+                "         */" . PHP_EOL .
+                "        " . $class . ",",
+            $appConfig
+        ));
     }
 
     /**
@@ -59,10 +70,11 @@ class SQLInterceptorServiceProvider extends ServiceProvider
      */
     protected function registerCommands()
     {
-        if ($this->app->runningInConsole()) {
-            $this->commands([
-                Console\InstallCommand::class,
-            ]);
-        }
+        if (!$this->app->runningInConsole())
+            return;
+
+        $this->commands([
+            Console\InstallCommand::class,
+        ]);
     }
 }
